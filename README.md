@@ -1,58 +1,101 @@
+# AWS Bootstrap CDK Project
 
-# Welcome to your CDK Python project!
+This project sets up shared AWS infrastructure resources required to support GitHub Actions deployments using OpenID Connect (OIDC). It deploys a CDK stack that defines an IAM role with trust policies for GitHub Actions to assume and perform deployments.
 
-This is a blank project for CDK development with Python.
+## 🚀 What It Does
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- Creates a GitHub OIDC IAM role for use in GitHub Actions
+- Tags resources for cost tracking and ownership
+- Uses CDK to manage everything as infrastructure-as-code
+- Supports multiple environments (dev and prod) via a single `.env` file and `just` commands
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+---
 
-To manually create a virtualenv on MacOS and Linux:
+## 📁 Structure
 
-```
-$ python3 -m venv .venv
-```
-
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-$ source .venv/bin/activate
+```bash
+.
+├── app.py                  # CDK entry point
+├── bootstrap_stack.py     # Defines the GitHubActionsBootstrapStack
+├── requirements.txt       # Python dependencies
+├── .env                   # Environment variables for dev and prod
+├── Justfile               # Developer-friendly CLI interface
+└── cdk.out/               # CDK synth output (ignored)
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+---
 
-```
-% .venv\Scripts\activate.bat
-```
+## ✅ Getting Started
 
-Once the virtualenv is activated, you can install the required dependencies.
+### 1. Install dependencies
 
-```
-$ pip install -r requirements.txt
+```bash
+just setup
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+### 2. Configure AWS SSO profiles (if needed)
 
+```bash
+aws configure sso --profile dev-profile
+aws configure sso --profile prod-profile
 ```
-$ cdk synth
+
+### 3. Login via SSO
+
+```bash
+just login-dev    # or just login-prod
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+### 4. Deploy to an environment
 
-## Useful commands
+```bash
+just deploy-dev    # deploys using dev-profile
+just deploy-prod   # deploys using prod-profile
+```
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+### 5. Bootstrap CDK if needed
 
-Enjoy!
+```bash
+just bootstrap-dev
+just bootstrap-prod
+```
+
+---
+
+## 🔧 Environment Config
+
+Set your AWS account info in the `.env` file:
+
+```ini
+DEV_ACCOUNT=111122223333
+DEV_PROFILE=dev-profile
+DEV_REGION=us-east-1
+
+PROD_ACCOUNT=444455556666
+PROD_PROFILE=prod-profile
+PROD_REGION=us-east-1
+```
+
+These values are automatically loaded by `just`.
+
+---
+
+## 🧪 Useful Commands
+
+```bash
+just synth              # CDK synth
+just clean              # Remove build artifacts
+just login-dev          # Run AWS SSO login for dev
+just login-prod         # Run AWS SSO login for prod
+```
+
+---
+
+## 🏷️ Tags
+All resources include standard project ownership tags:
+- `Project: aws-bootstrap`
+- `Owner: haslou`
+- `ManagedBy: CDK`
+
+---
+
